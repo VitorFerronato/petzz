@@ -18,7 +18,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
   import { collection, doc, setDoc, updateDoc } from "firebase/firestore";
   import type { Pet } from "~/types";
 
@@ -38,13 +38,20 @@
 
   const open = defineModel({ default: false });
 
-  const { handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isSubmitting, setValues, resetForm } = useForm({
     validationSchema: toTypedSchema(PetSchema),
+    initialValues: props.pet ?? {},
   });
 
   const submit = handleSubmit(async (values) => {
     if (isEditing.value) {
-      //
+      const petRef = doc(db, collectionName, props.pet?.id!);
+      await updateDoc(petRef, {
+        name: values.name,
+        age: values.age,
+        updatedAt: new Date().toISOString(),
+      });
+      useSonner.success("Pet updated successfully");
     } else {
       const petRef = doc(collection(db, collectionName));
       await setDoc(petRef, {
@@ -53,11 +60,18 @@
         updatedAt: new Date().toISOString(),
         userId: user.value?.uid,
       });
-
       useSonner.success("Pet created successfully");
     }
     open.value = false;
   });
-</script>
 
-<style lang="scss" scoped></style>
+  watch(open, (v) => {
+    if (v) {
+      if (isEditing.value) {
+        setValues(props.pet ?? {});
+      }
+    } else {
+      resetForm();
+    }
+  });
+</script>

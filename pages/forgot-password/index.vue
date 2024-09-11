@@ -23,9 +23,9 @@
 <script lang="ts" setup>
   import { sendPasswordResetEmail } from "firebase/auth";
 
-  // definePageMeta({
-  //   middleware: "already-logged-in",
-  // });
+  definePageMeta({
+    middleware: "already-logged-in",
+  });
 
   const auth = useFirebaseAuth();
 
