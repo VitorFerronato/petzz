@@ -20,6 +20,6 @@
   );
 
   const styles = tv({
-    base: "container mx-auto",
+    base: "container",
   });
 </script>
