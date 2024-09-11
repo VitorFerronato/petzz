@@ -15,7 +15,7 @@
 
           <UiDivider label="or" />
 
-          <UiButton type="button" variant="outline" class="w-full">
+          <UiButton @click="signUpWithGoogle" type="button" variant="outline" class="w-full">
             <Icon name="logos:google-icon" />
             Sign up with Google
           </UiButton>
@@ -25,11 +25,17 @@
   </UiContainer>
 </template>
 
+<script lang="ts">
+  import { GoogleAuthProvider } from "firebase/auth";
+
+  export const googleAuthProvider = new GoogleAuthProvider();
+</script>
+
 <script lang="ts" setup>
-  import { createUserWithEmailAndPassword, updateProfile } from "firebase/auth";
+  import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
 
   const auth = useFirebaseAuth();
-  
+
   const { handleSubmit, isSubmitting } = useForm({
     validationSchema: toTypedSchema(RegisterSchema),
   });
@@ -38,22 +44,41 @@
     const loading = useSonner.loading("Loading...", {
       description: "Creating your account",
     });
+
     try {
       const { user } = await createUserWithEmailAndPassword(auth!, values.email, values.password);
-      console.log(user);
+      await updateProfile(user, { displayName: values.name });
       useSonner.success("Account created successfully!", {
         id: loading,
       });
-      // redirect to the dashboard
-      //   return await navigateTo("/admin/dashboard", { replace: true });
+
+      return await navigateTo("/admin/dashboard", { replace: true });
     } catch (error: any) {
-      // show error
       console.log(error.message);
       useSonner.error(error.message, {
         id: loading,
       });
     }
   });
+
+  const signUpWithGoogle = async () => {
+    const loading = useSonner.loading("Loading...", {
+      description: "Creating your account",
+    });
+
+    try {
+      await signInWithPopup(auth!, googleAuthProvider);
+      useSonner.success("Account created successfully!", {
+        id: loading,
+      });
+      return await navigateTo("/admin/dashboard", { replace: true });
+    } catch (error: any) {
+      console.log(error.message);
+      useSonner.error(error.message, {
+        id: loading,
+      });
+    }
+  };
 </script>
 
 <style lang="scss" scoped></style>
