@@ -2,32 +2,38 @@
   <UiContainer class="flex min-h-dvh items-center justify-center">
     <div class="w-full max-w-[340px]">
       <div class="text-center">
-        <h1 class="text-3xl font-semibold lg:text-4xl">Create account</h1>
-        <p class="text-muted-foreground">Start managing your pets today!</p>
+        <h1 class="text-3xl font-semibold lg:text-4xl">Sign in</h1>
+        <p class="text-muted-foreground">Welcome back! Enter your details to get started</p>
       </div>
 
       <form @submit="submit" class="mt-10">
         <fieldset :disabled="isSubmitting" class="grid gap-5">
-          <UiVeeInput name="name" label="Full name *" placeholder="Fulano algo" />
           <UiVeeInput name="email" label="Email *" placeholder="fulano@gmail.com" />
           <UiVeeInput name="password" label="Password *" type="password" />
-          <UiButton type="submit" class="w-full">Create account</UiButton>
+          <p>
+            <NuxtLink
+              to="/forgot-password"
+              class="text-sm font-semibold text-primary hover:underline"
+              >Forgot password?</NuxtLink
+            >
+          </p>
+          <UiButton type="submit" class="w-full">Sign in</UiButton>
 
           <UiDivider label="or" />
 
-          <UiButton @click="signUpWithGoogle" type="button" variant="outline" class="w-full">
+          <UiButton @click="signInWithGoogle" type="button" variant="outline" class="w-full">
             <Icon name="logos:google-icon" />
-            Sign up with Google
+            Sign in with Google
           </UiButton>
         </fieldset>
       </form>
 
-           <p class="text-sm text-center mt-10">
-            Already have an account?
+        <p class="text-sm text-center mt-10">
+            Don't have an account?
             <NuxtLink
-              to="/"
+              to="/register"
               class="text-sm font-semibold text-primary hover:underline"
-              >Sign in here!</NuxtLink
+              >Create one here!</NuxtLink
             >
           </p>
     </div>
@@ -41,23 +47,22 @@
 </script>
 
 <script lang="ts" setup>
-  import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
+  import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
 
   const auth = useFirebaseAuth();
 
   const { handleSubmit, isSubmitting } = useForm({
-    validationSchema: toTypedSchema(RegisterSchema),
+    validationSchema: toTypedSchema(LoginSchema),
   });
 
   const submit = handleSubmit(async (values, ctx) => {
     const loading = useSonner.loading("Loading...", {
-      description: "Creating your account",
+      description: "We are signing you in",
     });
 
     try {
-      const { user } = await createUserWithEmailAndPassword(auth!, values.email, values.password);
-      await updateProfile(user, { displayName: values.name });
-      useSonner.success("Account created successfully!", {
+      await signInWithEmailAndPassword(auth!, values.email, values.password);
+      useSonner.success("User logged!", {
         id: loading,
       });
 
@@ -70,14 +75,14 @@
     }
   });
 
-  const signUpWithGoogle = async () => {
+  const signInWithGoogle = async () => {
     const loading = useSonner.loading("Loading...", {
-      description: "Creating your account",
+      description: "We are signing you in",
     });
 
     try {
       await signInWithPopup(auth!, googleAuthProvider);
-      useSonner.success("Account created successfully!", {
+      useSonner.success("User logged!", {
         id: loading,
       });
       return await navigateTo("/admin/dashboard", { replace: true });
