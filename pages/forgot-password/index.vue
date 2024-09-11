@@ -23,6 +23,10 @@
 <script lang="ts" setup>
   import { sendPasswordResetEmail } from "firebase/auth";
 
+  definePageMeta({
+    middleware: "already-logged-in",
+  });
+
   const auth = useFirebaseAuth();
 
   const { handleSubmit, isSubmitting } = useForm({
@@ -38,10 +42,10 @@
       await sendPasswordResetEmail(auth!, values.email, {
         url: "http://localhost:3000",
       });
-      
+
       useSonner.success("Please check your email!", {
         id: loading,
-        description: "We have sent you instructions to reset your password"
+        description: "We have sent you instructions to reset your password",
       });
 
       return await navigateTo("/", { replace: true });

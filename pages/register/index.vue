@@ -22,14 +22,12 @@
         </fieldset>
       </form>
 
-           <p class="text-sm text-center mt-10">
-            Already have an account?
-            <NuxtLink
-              to="/"
-              class="text-sm font-semibold text-primary hover:underline"
-              >Sign in here!</NuxtLink
-            >
-          </p>
+      <p class="mt-10 text-center text-sm">
+        Already have an account?
+        <NuxtLink to="/" class="text-sm font-semibold text-primary hover:underline"
+          >Sign in here!</NuxtLink
+        >
+      </p>
     </div>
   </UiContainer>
 </template>
@@ -42,6 +40,10 @@
 
 <script lang="ts" setup>
   import { createUserWithEmailAndPassword, signInWithPopup, updateProfile } from "firebase/auth";
+
+  definePageMeta({
+    middleware: "already-logged-in",
+  });
 
   const auth = useFirebaseAuth();
 
