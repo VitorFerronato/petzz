@@ -1,6 +1,6 @@
 <template>
-  <Primitive :class="styles({ class: props.class })" v-bind="reactiveOmit(props, 'class')">
-    <slot></slot>
+  <Primitive :class="styles({ class: props.class })" v-bind="forwarded">
+    <slot />
   </Primitive>
 </template>
 
@@ -19,7 +19,7 @@
       as: "div",
     }
   );
-
+  const forwarded = reactiveOmit(props, "class");
   const styles = tv({
     base: "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
   });

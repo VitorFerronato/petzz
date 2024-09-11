@@ -20,19 +20,37 @@
         </div>
       </div>
     </UiNavbar>
-    <h1 class="pt-16">Welcome back {{ user?.displayName }}</h1>
+    <UiContainer class="py-10">
+      <div class="flex flex-col justify-between gap-5 lg:flex-row">
+        <h1 class="pt-16">Welcome back {{ user?.displayName }}</h1>
+        <UiButton @click="dialog = true"> Add pet</UiButton>
+      </div>
+    </UiContainer>
+
+    <PetModal v-model="dialog" :pet="editItem" />
   </div>
 </template>
 
 <script setup lang="ts">
   import { signOut } from "firebase/auth";
+  import { collection, deleteDoc, doc, getDocs, query, where } from "firebase/firestore";
+  import type { Pet } from "~/types";
 
   definePageMeta({
     middleware: "auth",
   });
 
   const user = useCurrentUser();
+
+  const dialog = ref(false);
+  const editItem = ref<Pet>();
+
   const auth = useFirebaseAuth();
+  const db = useFirestore();
+  const collectionName = "pets";
+
+  const q = query(collection(db, collectionName), where("userId", "==", user.value?.uid));
+  const { data: pets, pending } = useCollection<Pet>(q);
 
   const logout = async () => {
     await signOut(auth!);
